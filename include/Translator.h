@@ -17,6 +17,8 @@ typedef struct {
 
 class Translator {
 private:
+    string accumulatorRegister = "EAX, ";
+
     unordered_map<string, vector<string>> program;
 
     unordered_map<string, Instruction> Instructions = {
