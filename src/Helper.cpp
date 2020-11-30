@@ -89,13 +89,13 @@ string printArgs(Line *l) {
     for (int i = 0; i < l->args.size(); i++) {
         retLine += l->args[i];
         if (l->args[i] == string("+")) {
-            retLine += " ";
+            retLine += "";
         } else if (l->args.size()-1 == i) {
             retLine += "";
         } else if (l->args[i+1] != string("+")) {
             retLine += ", ";
         } else {
-            retLine += " ";
+            retLine += "";
         }
         // + (l->args.size()-1 == i and l->args[i] != string("+") ? "":", ");
     }
