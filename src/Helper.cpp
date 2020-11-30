@@ -41,10 +41,22 @@ Line* getLineElements(vector<string> &lineContents) {
         if (lineContents[i].find(";") == string::npos) {
             // all args except the last one
             if (i - 1 >= opIdx + 1) {
-                size_t pos = lineContents[i-1].find(",");
+                size_t comma = lineContents[i-1].find(",");
+                size_t currIsPlus = lineContents[i-1].find("+");
+                size_t nextIsPlus = lineContents[i].find("+");
                 // If it does not have a comma, throw error
-                if (pos == string::npos) {
-                    throw invalid_argument("Argumento não separado por vírgula");
+                if (comma == string::npos and nextIsPlus == string::npos) {
+                    // comma not found and next is not +
+                    l->args.push_back(lineContents[i]);
+                    continue;
+                } else if (comma == string::npos and nextIsPlus != string::npos) {
+                    l->args.push_back(lineContents[i]);
+                    l->args.push_back(lineContents[i+1]);
+                    if (i < lineContents.size()) {
+                        i++;
+                        continue;
+                    } 
+                    break;
                 }
             }
             l->args.push_back(lineContents[i]);
@@ -75,7 +87,17 @@ bool hasOnlyLabel(Line* l) {
 string printArgs(Line *l) {
     string retLine = "";
     for (int i = 0; i < l->args.size(); i++) {
-        retLine += l->args[i] + (l->args.size()-1 == i ? "":", ");
+        retLine += l->args[i];
+        if (l->args[i] == string("+")) {
+            retLine += " ";
+        } else if (l->args.size()-1 == i) {
+            retLine += "";
+        } else if (l->args[i+1] != string("+")) {
+            retLine += ", ";
+        } else {
+            retLine += " ";
+        }
+        // + (l->args.size()-1 == i and l->args[i] != string("+") ? "":", ");
     }
     
     return retLine;
