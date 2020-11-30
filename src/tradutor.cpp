@@ -23,5 +23,7 @@ int main(int argc, char const *argv[]) {
 
     Translator* translator = new Translator(preProcessedFile);
 
+    translator->translate();
+
     return 0;
 }
