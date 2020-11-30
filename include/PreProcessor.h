@@ -21,7 +21,7 @@ public:
     PreProcessor(string, bool);
     ~PreProcessor();
     
-    vector<string> preProcess(); 
+    unordered_map<string, vector<string>> preProcess(); 
 };
 
 #endif // PRE_PROCESSOR_H

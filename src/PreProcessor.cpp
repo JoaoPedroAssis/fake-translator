@@ -26,7 +26,7 @@ PreProcessor::~PreProcessor() {
     program.close();
 }
 
-vector<string> PreProcessor::preProcess() {
+unordered_map<string, vector<string>> PreProcessor::preProcess() {
     vector<string> outputFile;
     
     int fileLine = 1;
@@ -237,11 +237,24 @@ vector<string> PreProcessor::preProcess() {
         fileLine++;
     }
 
-    if (print) {
-        printPreprocessedFile(outputFile);
-    } 
+    unordered_map<string, vector<string>> separatedOutputFile;
 
-    return outputFile;
+    for (string line : outputFile) {
+        vector<string> lineContents = split(line, ' ', '\t');
+        if (lineContents.size() > 1 and lineContents[0] != string("SECTION")) {
+            if (lineContents[1] == "SPACE") {
+                separatedOutputFile["bss"].push_back(line);
+            } else if (lineContents[1] == "CONST" or lineContents[1] == "DATA") {
+                separatedOutputFile["data"].push_back(line);
+            } else {
+                separatedOutputFile["text"].push_back(line);
+            }
+        } else if (lineContents[0] != string("SECTION")) {
+            separatedOutputFile["text"].push_back(line);
+        }
+    }
+
+    return separatedOutputFile;
 }
 
 void PreProcessor::printPreprocessedFile(vector<string> outputVector) {
