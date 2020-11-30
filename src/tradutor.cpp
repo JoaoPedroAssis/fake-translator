@@ -24,6 +24,7 @@ int main(int argc, char const *argv[]) {
     Translator* translator = new Translator(preProcessedFile);
 
     translator->translate();
+    translator->printToFile(programFilepath);
 
     return 0;
 }
