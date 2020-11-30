@@ -27,6 +27,13 @@
 *.lib
 
 # Executables
-*.exe
-*.out
-*.app
+tradutor
+
+# Compilation Folders
+bin
+dep
+
+# Vscode
+.vscode
+
+
