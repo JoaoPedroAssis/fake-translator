@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string.h>
-#include "../include/Error.h"
+#include "../include/PreProcessor.h"
+#include "../include/Translator.h"
 
 using namespace std;
 
@@ -16,6 +17,11 @@ int main(int argc, char const *argv[]) {
         return 0;
     }
 
+    PreProcessor* preProcessor = new PreProcessor(programFilepath, false);
+
+    auto preProcessedFile = preProcessor->preProcess();
+
+    Translator* translator = new Translator(preProcessedFile);
 
     return 0;
 }
