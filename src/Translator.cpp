@@ -145,19 +145,16 @@ string Translator::toIA32(string line) {
         translatedLine += l->label + " DD '" + l->args[0] + "'";
 
     } else if (l->operation == "STOP") {
-        translatedLine += "MOV " + accumulatorRegister + "1\n";
+        translatedLine += "MOV EAX, 1\n";
         translatedLine += "INT 80h";
     }
 
     return translatedLine;
 }
 
-void Translator::printToFile(string inputFilePath) {
+void Translator::printToFile(string inputFilename) {
     
-    string file = inputFilePath.substr(inputFilePath.find_last_of("/") + 1);
-    string programFilename = file.substr(0, file.find_last_of('.'));
-
-    ofstream out("./" + programFilename + ".s");
+    ofstream out("./" + inputFilename + ".s");
     for (string line : this->translatedProgram) {
         out << line << endl;
     }
