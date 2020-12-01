@@ -79,6 +79,8 @@ clean:
 	$(RMDIR) $(BIN_PATH) $(DEP_PATH)
 	$(RM) $(EXEC)
 
+	rm *.o *.s
+
 .PRECIOUS: $(DEP_PATH)/%.D
 
 .PHONY: debug clean release
