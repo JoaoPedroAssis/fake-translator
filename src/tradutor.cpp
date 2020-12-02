@@ -33,12 +33,17 @@ int main(int argc, char const *argv[]) {
     translator->translate();
     translator->printToFile(programFilename);
 
+
+    cout << "Programa traduzido salvo em " + programFilename + ".s" << endl;
+
     cout << "Montando programa: " << endl;
 
     string command = "nasm -f elf32 -o " + programFilename + ".o " + programFilename + ".s";
     cout << command << endl;
     int exit = system(command.c_str());
     
+    cout << "\nLigando programa: " << endl;
+
     command = "ld -m elf_i386 -o " + programFilename + " " + programFilename + ".o";
     cout << command << endl;
     exit = system(command.c_str());
