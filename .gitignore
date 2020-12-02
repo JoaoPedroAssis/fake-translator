@@ -36,4 +36,7 @@ dep
 # Vscode
 .vscode
 
+# Assembled output
+*.s
+
 
