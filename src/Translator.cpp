@@ -74,7 +74,6 @@ string Translator::toIA32(string line) {
         translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
         translatedLine += "IMUL DWORD" + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
         translatedLine += "MOV " + accumulatorRegister + "EAX";
-        //verificar overflow interrupção de software
         
     } else if (l->operation == "DIV") {
 
@@ -139,13 +138,13 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "S_INPUT") {
 
         translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "PUSH " + l->args[1] + "\n";
+        translatedLine += "PUSH DWORD" + l->args[1] + "\n";
         translatedLine += "CALL LerString";
         
     } else if (l->operation == "S_OUTPUT") {
 
         translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "PUSH " + l->args[1] + "\n";
+        translatedLine += "PUSH DWORD" + l->args[1] + "\n";
         translatedLine += "CALL EscreverString";
         
     } else if (l->operation == "SPACE") {
