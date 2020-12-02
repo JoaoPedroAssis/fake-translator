@@ -19,6 +19,8 @@ void Translator::translate() {
     translatedProgram.push_back(escreverChar() + "\n");
     translatedProgram.push_back(lerString() + "\n");
     translatedProgram.push_back(escreverString() + "\n");
+    translatedProgram.push_back(lerInteiro() + "\n");
+    translatedProgram.push_back(escreverInteiro() + "\n");
 
     /* Program start */
     translatedProgram.push_back("_start:");
@@ -63,15 +65,15 @@ string Translator::toIA32(string line) {
 
     } else if (l->operation == "MULT") {
 
-        translatedLine += "MOV EAX, " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + "\n";
-        translatedLine += "IMUL " + l->args[0];
+        translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
+        translatedLine += "IMUL " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
         //verificar overflow interrupção de software
         
     } else if (l->operation == "DIV") {
 
-        translatedLine += "MOV EAX, " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + "\n";
+        translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
         translatedLine += "CDQ\n";
-        translatedLine += "IDIV " + l->args[0];
+        translatedLine += "IDIV " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
         
     } else if (l->operation == "JMP") {
         
@@ -99,7 +101,7 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "LOAD") {
 
         translatedLine +=
-        "MOV [" + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + "], " + l->args[0];
+        "MOV " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + ", " + "[" + l->args[0] + "]";
         
     } else if (l->operation == "STORE") {
 
@@ -108,7 +110,13 @@ string Translator::toIA32(string line) {
         
     } else if (l->operation == "INPUT") {
         
+        translatedLine += "PUSH " + l->args[0] + "\n";
+        translatedLine += "CALL LerInteiro";
+
     } else if (l->operation == "OUTPUT") {
+
+        translatedLine += "PUSH " + l->args[0] + "\n";
+        translatedLine += "CALL EscreverInteiro";
         
     } else if (l->operation == "C_INPUT") {
         
@@ -217,6 +225,51 @@ string Translator::escreverString() {
     func += "INT 80h\n";
     func += "LEAVE\n";
     func += "RET 8";
+
+    return func;
+}
+
+string Translator::lerInteiro() {
+    string func = "";
+    func += "LerInteiro:\n";
+    func += "ENTER 0, 0\n";
+    func += "MOV EAX, 3\n";
+    func += "MOV EBX, 0\n";
+    func += "MOV ECX, [EBP + 8]\n";
+    func += "MOV EDX, 3\n";
+    func += "INT 80h\n";
+    func += "MOV EAX, [ECX + 2]\n";
+    func += "MOV BL, AL\n";
+    func += "SUB EBX, '0'\n";
+    func += "MOV EAX, [ECX + 1]\n";
+    func += "MOV DL, AL\n";
+    func += "SUB EDX, '0'\n";
+    func += "MOV EAX, 10\n";
+    func += "IMUL EDX\n";
+    func += "ADD EBX, EAX\n";
+    func += "MOV EAX, [ECX]\n";
+    func += "MOV DL, AL\n";
+    func += "SUB EDX, '0'\n";
+    func += "MOV EAX, 100\n";
+    func += "IMUL EDX\n";
+    func += "ADD EBX, EAX\n";
+    func += "LEAVE\n";
+    func += "RET 4";
+
+    return func;
+}
+
+string Translator::escreverInteiro() {
+    string func = "";
+    func += "EscreverInteiro:\n";
+    func += "ENTER 0, 0\n";
+    func += "MOV EAX, 4\n";
+    func += "MOV EBX, 1\n";
+    func += "MOV ECX, [EBP + 8]\n";
+    func += "MOV EDX, 3\n";
+    func += "INT 80h\n";
+    func += "LEAVE\n";
+    func += "RET 4";
 
     return func;
 }
