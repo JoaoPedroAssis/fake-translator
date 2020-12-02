@@ -38,6 +38,10 @@ void Translator::translate() {
     /* Section Data */
     translatedProgram.push_back("\nsection .data\n");
 
+    /* Print msgs */
+    translatedProgram.push_back("lenMsgStart db \"O procedimento leu \"");
+    translatedProgram.push_back("lenMsgEnd db \" caracteres\", 0ah");
+
     for (string line : program["data"]) {
         translatedProgram.push_back(this->toIA32(line));
     }
@@ -72,12 +76,12 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "MULT") {
 
         translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
-        translatedLine += "IMUL DWORD" + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
+        translatedLine += "IMUL DWORD " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + "\n";
         translatedLine += "MOV " + accumulatorRegister + "EAX";
         
     } else if (l->operation == "DIV") {
 
-        translatedLine += "MOV EAX, " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
+        translatedLine += "MOV EAX, " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2) + "\n";
         translatedLine += "CDQ\n";
         translatedLine += "IDIV DWORD [" + l->args[0] + "]\n";
         translatedLine += "MOV " + accumulatorRegister + "EAX";
@@ -117,8 +121,9 @@ string Translator::toIA32(string line) {
         
     } else if (l->operation == "INPUT") {
         
+        translatedLine += "PUSH " + l->args[0] + "\n";
         translatedLine += "CALL LerInteiro\n";
-        translatedLine += "MOV [" + l->args[0] + "], EAX";
+        translatedLine += "CALL EscreveTamanho";
 
     } else if (l->operation == "OUTPUT") {
 
@@ -128,7 +133,8 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "C_INPUT") {
         
         translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "CALL LerChar";
+        translatedLine += "CALL LerChar\n";
+        translatedLine += "CALL EscreveTamanho";
         
     } else if (l->operation == "C_OUTPUT") {
 
@@ -138,13 +144,14 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "S_INPUT") {
 
         translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "PUSH DWORD" + l->args[1] + "\n";
-        translatedLine += "CALL LerString";
+        translatedLine += "PUSH DWORD " + l->args[1] + "\n";
+        translatedLine += "CALL LerString\n";
+        translatedLine += "CALL EscreveTamanho";
         
     } else if (l->operation == "S_OUTPUT") {
 
         translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "PUSH DWORD" + l->args[1] + "\n";
+        translatedLine += "PUSH DWORD " + l->args[1] + "\n";
         translatedLine += "CALL EscreverString";
         
     } else if (l->operation == "SPACE") {
@@ -162,6 +169,10 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "STOP") {
         translatedLine += "MOV EAX, 1\n";
         translatedLine += "INT 80h";
+    }
+
+    if (!l->label.empty()) {
+        translatedLine = l->label + ":\n" + translatedLine;
     }
 
     return translatedLine;
