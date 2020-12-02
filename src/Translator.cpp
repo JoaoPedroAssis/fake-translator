@@ -31,28 +31,28 @@ void Translator::translate() {
     /* Program start */
     translatedProgram.push_back("_start:");
 
-    
     for (string line : program["text"]) {
         translatedProgram.push_back(this->toIA32(line));
     }
 
     /* Section Data */
-    if (program.find("data") != program.end()) {
-        translatedProgram.push_back("\nsection .data\n");
+    translatedProgram.push_back("\nsection .data\n");
 
-        for (string line : program["data"]) {
-            translatedProgram.push_back(this->toIA32(line));
-        }
+    for (string line : program["data"]) {
+        translatedProgram.push_back(this->toIA32(line));
     }
 
     /* Section Bss */
-    if (program.find("bss") != program.end()) {
-        translatedProgram.push_back("\nsection .bss\n");
+    translatedProgram.push_back("\nsection .bss\n");
 
-        for (string line : program["bss"]) {
-            translatedProgram.push_back(this->toIA32(line));
-        }
+    /* Useful variables */
+    translatedProgram.push_back("BUFFER RESB 12");
+    translatedProgram.push_back("BUFFER_SIZE EQU 12");
+
+    for (string line : program["bss"]) {
+        translatedProgram.push_back(this->toIA32(line));
     }
+    
 }
 
 string Translator::toIA32(string line) {
@@ -118,12 +118,12 @@ string Translator::toIA32(string line) {
         
     } else if (l->operation == "INPUT") {
         
-        translatedLine += "PUSH " + l->args[0] + "\n";
-        translatedLine += "CALL LerInteiro";
+        translatedLine += "CALL LerInteiro\n";
+        translatedLine += "MOV [" + l->args[0] + "], EAX";
 
     } else if (l->operation == "OUTPUT") {
 
-        translatedLine += "PUSH " + l->args[0] + "\n";
+        translatedLine += "PUSH DWORD [" + l->args[0] + "]\n";
         translatedLine += "CALL EscreverInteiro";
         
     } else if (l->operation == "C_INPUT") {
@@ -158,7 +158,7 @@ string Translator::toIA32(string line) {
         
     } else if (l->operation == "CONST") {
         
-        translatedLine += l->label + " DD '" + l->args[0] + "'";
+        translatedLine += l->label + " DD " + l->args[0];
 
     } else if (l->operation == "STOP") {
         translatedLine += "MOV EAX, 1\n";

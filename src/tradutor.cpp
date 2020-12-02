@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
     translator->printToFile(programFilename);
 
 
-    cout << "Programa traduzido salvo em " + programFilename + ".s" << endl;
+    cout << "Programa traduzido salvo em " + programFilename + ".s" << endl << endl;
 
     cout << "Montando programa: " << endl;
 
