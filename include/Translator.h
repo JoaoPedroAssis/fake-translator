@@ -16,14 +16,6 @@ private:
 
     string toIA32(string);
 
-    /* Assembly functions */
-    string lerChar();
-    string escreverChar();
-    string lerString();
-    string escreverString();
-    string lerInteiro();
-    string escreverInteiro();
-    
 public:
     Translator(unordered_map<string, vector<string>>);
     ~Translator();

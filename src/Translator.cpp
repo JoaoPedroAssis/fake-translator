@@ -1,3 +1,4 @@
+#include <fstream>
 #include "../include/Translator.h"
 #include "../include/Helper.h"
 
@@ -15,12 +16,17 @@ void Translator::translate() {
     translatedProgram.push_back("\nsection .text\n");
 
     /* Print Funções Assembly */
-    translatedProgram.push_back(lerChar() + "\n");
-    translatedProgram.push_back(escreverChar() + "\n");
-    translatedProgram.push_back(lerString() + "\n");
-    translatedProgram.push_back(escreverString() + "\n");
-    translatedProgram.push_back(lerInteiro() + "\n");
-    translatedProgram.push_back(escreverInteiro() + "\n");
+
+    ifstream funcs("IA-32/io.asm");
+    if (!funcs) {
+        cout << "Não foi possível abrir o arquivo com funções de IO" << endl;
+        exit(1);
+    }
+
+    string line;
+    while(getline(funcs, line)) {
+        translatedProgram.push_back(line);
+    }
 
     /* Program start */
     translatedProgram.push_back("_start:");
@@ -66,14 +72,16 @@ string Translator::toIA32(string line) {
     } else if (l->operation == "MULT") {
 
         translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
-        translatedLine += "IMUL " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
+        translatedLine += "IMUL DWORD" + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
+        translatedLine += "MOV " + accumulatorRegister + "EAX";
         //verificar overflow interrupção de software
         
     } else if (l->operation == "DIV") {
 
-        translatedLine += "MOV EAX, [" + l->args[0] + "]\n";
+        translatedLine += "MOV EAX, " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
         translatedLine += "CDQ\n";
-        translatedLine += "IDIV " + accumulatorRegister.substr(0, accumulatorRegister.length() - 2);
+        translatedLine += "IDIV DWORD [" + l->args[0] + "]\n";
+        translatedLine += "MOV " + accumulatorRegister + "EAX";
         
     } else if (l->operation == "JMP") {
         
@@ -167,109 +175,4 @@ void Translator::printToFile(string inputFilename) {
         out << line << endl;
     }
     out.close();
-}
-
-string Translator::lerChar() {
-    string func = "";
-    func += "LerChar:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 3\n";
-    func += "MOV EBX, 0\n";
-    func += "MOV ECX, [EBP + 8]\n";
-    func += "MOV EDX, 1\n";
-    func += "INT 80h\n";
-    func += "LEAVE\n";
-    func += "RET 4";
-
-    return func;
-}
-
-string Translator::escreverChar() {
-    string func = "";
-    func += "EscreverChar:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 4\n";
-    func += "MOV EBX, 1\n";
-    func += "MOV ECX, [EBP + 8]\n";
-    func += "MOV EDX, 1\n";
-    func += "INT 80h\n";
-    func += "LEAVE\n";
-    func += "RET 4";
-
-    return func;
-}
-
-string Translator::lerString() {
-    string func = "";
-    func += "LerString:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 3\n";
-    func += "MOV EBX, 0\n";
-    func += "MOV ECX, [EBP + 12]\n";
-    func += "MOV EDX, [EBP + 8]\n";
-    func += "INT 80h\n";
-    func += "LEAVE\n";
-    func += "RET 8";
-
-    return func;
-}
-
-string Translator::escreverString() {
-    string func = "";
-    func += "EscreverString:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 4\n";
-    func += "MOV EBX, 1\n";
-    func += "MOV ECX, [EBP + 12]\n";
-    func += "MOV EDX, [EBP + 8]\n";
-    func += "INT 80h\n";
-    func += "LEAVE\n";
-    func += "RET 8";
-
-    return func;
-}
-
-string Translator::lerInteiro() {
-    string func = "";
-    func += "LerInteiro:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 3\n";
-    func += "MOV EBX, 0\n";
-    func += "MOV ECX, [EBP + 8]\n";
-    func += "MOV EDX, 3\n";
-    func += "INT 80h\n";
-    func += "MOV EAX, [ECX + 2]\n";
-    func += "MOV BL, AL\n";
-    func += "SUB EBX, '0'\n";
-    func += "MOV EAX, [ECX + 1]\n";
-    func += "MOV DL, AL\n";
-    func += "SUB EDX, '0'\n";
-    func += "MOV EAX, 10\n";
-    func += "IMUL EDX\n";
-    func += "ADD EBX, EAX\n";
-    func += "MOV EAX, [ECX]\n";
-    func += "MOV DL, AL\n";
-    func += "SUB EDX, '0'\n";
-    func += "MOV EAX, 100\n";
-    func += "IMUL EDX\n";
-    func += "ADD EBX, EAX\n";
-    func += "LEAVE\n";
-    func += "RET 4";
-
-    return func;
-}
-
-string Translator::escreverInteiro() {
-    string func = "";
-    func += "EscreverInteiro:\n";
-    func += "ENTER 0, 0\n";
-    func += "MOV EAX, 4\n";
-    func += "MOV EBX, 1\n";
-    func += "MOV ECX, [EBP + 8]\n";
-    func += "MOV EDX, 3\n";
-    func += "INT 80h\n";
-    func += "LEAVE\n";
-    func += "RET 4";
-
-    return func;
 }
