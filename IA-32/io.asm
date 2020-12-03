@@ -58,6 +58,8 @@ POP EDX
 POP ECX
 POP EBX
 
+DEC EAX
+
 ADD ESP, 4
 LEAVE
 RET
@@ -66,11 +68,13 @@ RET
 
 EscreverString:
 ENTER 0,0
+PUSHA
 MOV EAX, 4
 MOV EBX, 1
 MOV ECX, [EBP + 12]
 MOV EDX, [EBP + 8]
 INT 80h
+POPA
 LEAVE
 RET
 
@@ -120,6 +124,11 @@ XOR EAX, EAX
 SUB EAX, [ESP]
 ADD ESP, 4
 SINAL_POSITIVO:
+
+MOV EDX, [EBP + 8]
+MOV [EDX], EAX
+MOV EAX, ECX
+
 POP EDI
 POP EDX
 POP ECX
@@ -190,9 +199,24 @@ DEC EBX
 PRINT:  
 PUSH EBX
 PUSH ECX
-call EscreverString
+CALL EscreverString
 ADD ESP, 8
 POPA
+LEAVE
+RET
+
+; =============================================
+
+EscreveTamanho:
+ENTER 0,0
+PUSH lenMsgStart
+PUSH 19
+CALL EscreverString
+PUSH eax
+CALL EscreverInteiro
+PUSH lenMsgEnd
+PUSH 12
+CALL EscreverString
 LEAVE
 RET
 

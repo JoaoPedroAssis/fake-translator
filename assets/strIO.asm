@@ -1,6 +1,6 @@
 SECTION TEXT
-S_INPUT N3, 5
-S_OUTPUT N3, 5
+s_input string, 10
+s_output string, 10
 STOP
 SECTION DATA
-N3: SPACE 10
+string: SPACE 10
